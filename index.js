@@ -1,27 +1,46 @@
-const express = require('express');
+const express = require('express'),
+  app = express(),
+  port = 8000,
+  passport = require('passport'),
+  passportJwt = require('./config/passport_jwt_strategy'),
+  expressLayouts = require('express-ejs-layouts'),
+  session = require('express-session'),
+  db = require('./config/mongoose'),
+  path = require('path');
 
-const mongoose = require('mongoose');
+//form controller
+app.use(express.urlencoded({ extended: true }));
 
-const app =express();
+//express layout
+app.use(expressLayouts);
+//extract styles and scripts fron sub pages
+app.set('layout extractStyles', true);
+app.set('layout extractScripts', true);
+//view engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-const dotenv =require('dotenv');
-const authRoute = require('./routes/auth');
+//add authentication via passport
+app.use(
+  session({
+    name: 'club_manager',
+    secret: 'something',
+    saveUninitialized: false,
+    resave: false,
+  })
+);
 
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(passport.setAuthenticatedUser);
 
-dotenv.config();
+// use express router
+app.use('/', require('./routes'));
 
-app.use(express.json());
-
-//middlewares
-app.use('/user',authRoute);
-
-///mongodb
-
-mongoose.connect('mongodb://localhost:27017/auth',{useNewUrlParser : true,useUnifiedTopology: true},()=>{
-    console.log('successfully connected to database');
+//port config
+app.listen(port, function (err) {
+  if (err) {
+    console.log(`There is some error starting the server:${err}`);
+  }
+  console.log(`Server is running on port:${port}`);
 });
-
-app.listen('3000',()=>{
-    console.log("server on");
-});
-
