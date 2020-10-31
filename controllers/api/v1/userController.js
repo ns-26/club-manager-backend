@@ -6,7 +6,7 @@ module.exports.login = async function (req, res) {
   try {
     let user = await User.findOne({ email: req.body.email });
     if (!user || user.password != req.body.password) {
-      res.status(422).json({
+      return res.status(422).json({
         message: 'Invalid Username or password',
       });
     }

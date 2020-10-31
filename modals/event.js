@@ -10,13 +10,21 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    eventTime: {
+    startTime: {
       type: String,
       required: true,
     },
-    username: {
+    endTime: {
       type: String,
       required: true,
+    },
+    discription: {
+      type: String,
+      required: true,
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
   },
   {
