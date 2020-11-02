@@ -10,10 +10,13 @@ module.exports.login = async function (req, res) {
         message: 'Invalid Username or password',
       });
     }
+    let filterUser = await User.findOne({ email: req.body.email })
+      .select('-password')
+      .select('-__v');
     return res.status(200).json({
       message: 'Sign In successful token generated not to be shared',
       data: {
-        token: jwt.sign(user.toJSON(), 'something', {
+        token: jwt.sign(filterUser.toJSON(), 'something', {
           expiresIn: '1000000',
         }),
       },
@@ -33,14 +36,17 @@ module.exports.create = async function (req, res) {
         .status(403)
         .json({ message: 'Password and Confirm Password does not match' });
     }
-    let user = await User.findOne({ email: req.body.username });
+    let user = await User.findOne({ email: req.body.email });
     if (!user) {
       let newUser = await User.create(req.body);
       if (newUser) {
+        let filterUser = await User.findOne({ email: req.body.email })
+          .select('-password')
+          .select('-__v');
         return res.status(200).json({
           message: 'Sign In successful token generated not to be shared',
           data: {
-            token: jwt.sign(newUser.toJSON(), 'something', {
+            token: jwt.sign(filterUser.toJSON(), 'something', {
               expiresIn: '1000000',
             }),
           },
