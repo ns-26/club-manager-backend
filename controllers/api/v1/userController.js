@@ -14,7 +14,7 @@ module.exports.login = async function (req, res) {
       .select('-password')
       .select('-__v');
     return res.status(200).json({
-      message: 'Sign In successful token generated not to be shared',
+      message: 'Sign In successful',
       data: {
         token: jwt.sign(filterUser.toJSON(), 'something', {
           expiresIn: '1000000',
@@ -44,7 +44,7 @@ module.exports.create = async function (req, res) {
           .select('-password')
           .select('-__v');
         return res.status(200).json({
-          message: 'Sign In successful token generated not to be shared',
+          message: 'Sign In successful',
           data: {
             token: jwt.sign(filterUser.toJSON(), 'something', {
               expiresIn: '1000000',
