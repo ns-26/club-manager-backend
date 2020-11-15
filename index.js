@@ -11,6 +11,9 @@ const express = require('express'),
 //form controller
 app.use(express.urlencoded({ extended: true }));
 
+//settimg up uploads
+app.use('/uploads', express.static(__dirname + '/uploads'));
+
 //express layout
 app.use(expressLayouts);
 //extract styles and scripts fron sub pages
