@@ -19,6 +19,7 @@ module.exports.newEvent = async function (req, res) {
           let eventDate = req.body.date;
           let discription = req.body.discription;
           let shortDiscription = req.body.short_discription;
+          let schedule = req.body.schedule;
           let input = {
             user,
             startTime,
@@ -27,6 +28,7 @@ module.exports.newEvent = async function (req, res) {
             eventDate,
             discription,
             shortDiscription,
+            schedule,
           };
           let event = await Event.create(input);
           if (event) {
