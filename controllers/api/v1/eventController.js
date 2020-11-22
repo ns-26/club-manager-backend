@@ -20,6 +20,9 @@ module.exports.newEvent = async function (req, res) {
           let discription = req.body.discription;
           let shortDiscription = req.body.short_discription;
           let schedule = req.body.schedule;
+          let space = '\n\n--- \n';
+          let imageCorrection = 'http://localhost:8000';
+          discription = discription + space + schedule;
           let input = {
             user,
             startTime,
@@ -43,7 +46,8 @@ module.exports.newEvent = async function (req, res) {
 
               console.log(req.file);
               //this is saving the path of the uploaded file into the avatar field of the user
-              event.eimage = Event.EImagePath + '/' + req.file.filename;
+              event.eimage =
+                imageCorrection + Event.EImagePath + '/' + req.file.filename;
             }
             event.save();
             return res.status(200).json({
