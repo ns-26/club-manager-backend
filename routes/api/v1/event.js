@@ -18,4 +18,11 @@ router.post(
   eventController.update
 );
 
+router.post(
+  '/destroy/:id',
+  passport.authenticate('jwt', { failWithError: true, session: false }),
+  middleware.handleError,
+  eventController.destroy
+);
+
 module.exports = router;

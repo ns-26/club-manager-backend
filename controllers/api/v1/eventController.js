@@ -129,3 +129,29 @@ module.exports.update = async function (req, res) {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+module.exports.destroy = async function (req, res) {
+  try {
+    let event = await Event.findById(req.params.id);
+    if (event) {
+      if (event.user.equals(req.user._id)) {
+        if (event.eimage) {
+          let avatarPath = event.eimage.substr(21);
+          if (fs.existsSync(path.join(__dirname, '../../../', avatarPath))) {
+            fs.unlinkSync(path.join(__dirname, '../../../', avatarPath));
+          }
+        }
+        event.remove();
+        await User.findByIdAndUpdate(req.user._id, {
+          $pull: { event: req.params.id },
+        });
+        return res.status(200).json({ message: 'Event Successfully Deleted' });
+      }
+      return res.status(401).json({ message: 'You cannot delete this event' });
+    }
+    return res.status(404).json({ message: 'No such event found' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
