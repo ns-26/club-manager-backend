@@ -39,8 +39,11 @@ module.exports.newEvent = async function (req, res) {
             findUser.save();
             if (req.file) {
               if (event.eimage) {
-                if (fs.existsSync(path.join(__dirname, '..', 'event.eimage'))) {
-                  fs.unlinkSync(path.join(__dirname, '..', 'event.eimage'));
+                let avatarPath = event.eimage.substr(21);
+                if (
+                  fs.existsSync(path.join(__dirname, '../../../', avatarPath))
+                ) {
+                  fs.unlinkSync(path.join(__dirname, '../../../', avatarPath));
                 }
               }
 
