@@ -90,9 +90,9 @@ module.exports.update = async function (req, res) {
       }
       let event = await Event.findById(req.params.id);
       if (event) {
-        console.log(req.user._id);
-        console.log(event.user);
-        if (req.user._id == event.user) {
+        let userid = req.user._id;
+        let eventid = event.user;
+        if (userid.equals(eventid)) {
           event.eventName = req.body.eventName;
           event.eventDate = req.body.eventDate;
           event.startTime = req.body.startTime;
