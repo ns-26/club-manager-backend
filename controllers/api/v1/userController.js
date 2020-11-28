@@ -106,7 +106,19 @@ module.exports.update = async function (req, res) {
       if (req.user._id == req.params.id) {
         let user = await User.findById(req.user._id);
         if (user) {
-          user.password = req.body.password;
+          if (req.body.newPassword) {
+            if (req.body.oldPassword == user.password) {
+              if (req.body.newPassword == req.body.confirmNewPassword) {
+                user.password = req.body.newPassword;
+              } else {
+                return res.status(403).json({
+                  message: 'New Password and Confirm Password do not match',
+                });
+              }
+            } else {
+              return res.status(401).json({ message: 'Wrong Password' });
+            }
+          }
           user.username = req.body.username;
           user.bio = req.body.bio;
           if (req.file) {
