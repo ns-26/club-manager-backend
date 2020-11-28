@@ -11,4 +11,11 @@ router.post(
   eventController.newEvent
 );
 
+router.post(
+  '/edit/:id',
+  passport.authenticate('jwt', { failWithError: true, session: false }),
+  middleware.handleError,
+  eventController.update
+);
+
 module.exports = router;

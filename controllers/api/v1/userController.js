@@ -105,26 +105,31 @@ module.exports.update = async function (req, res) {
       }
       if (req.user._id == req.params.id) {
         let user = await User.findById(req.user._id);
-        user.password = req.body.password;
-        user.username = req.body.username;
-        user.bio = req.body.bio;
-        if (req.file) {
-          if (user.avatar) {
-            let avatarPath = user.avatar.substr(21);
-            if (fs.existsSync(path.join(__dirname, '../../../', avatarPath))) {
-              fs.unlinkSync(path.join(__dirname, '../../../', avatarPath));
+        if (user) {
+          user.password = req.body.password;
+          user.username = req.body.username;
+          user.bio = req.body.bio;
+          if (req.file) {
+            if (user.avatar) {
+              let avatarPath = user.avatar.substr(21);
+              if (
+                fs.existsSync(path.join(__dirname, '../../../', avatarPath))
+              ) {
+                fs.unlinkSync(path.join(__dirname, '../../../', avatarPath));
+              }
             }
-          }
 
-          console.log(req.file);
-          //this is saving the path of the uploaded file into the avatar field of the user
-          user.avatar =
-            imageCorrection + User.AvatarPath + '/' + req.file.filename;
+            console.log(req.file);
+            //this is saving the path of the uploaded file into the avatar field of the user
+            user.avatar =
+              imageCorrection + User.AvatarPath + '/' + req.file.filename;
+          }
+          user.save();
+          return res
+            .status(200)
+            .json({ message: 'Credentials Successfully Updated' });
         }
-        user.save();
-        return res
-          .status(200)
-          .json({ message: 'Credentials Successfully Updated' });
+        return res.status(404).json({ message: 'User Not Found' });
       }
       return res.status(401).json({ message: 'Unauthorized' });
     });

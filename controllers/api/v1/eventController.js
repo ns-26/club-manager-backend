@@ -2,6 +2,10 @@ const User = require('../../../modals/User');
 
 const Event = require('../../../modals/event');
 
+const fs = require('fs');
+
+const path = require('path');
+
 module.exports.newEvent = async function (req, res) {
   try {
     Event.uploadedEImage(req, res, async function (err) {
@@ -72,5 +76,56 @@ module.exports.newEvent = async function (req, res) {
     return res.status(500).json({
       message: 'Internal Server Error',
     });
+  }
+};
+
+module.exports.update = async function (req, res) {
+  try {
+    let imageCorrection = 'http://localhost:8000';
+
+    Event.uploadedEImage(req, res, async function (err) {
+      if (err) {
+        console.log('Multer Error', err);
+        res.status(500).json({ message: 'Error Uploading Image' });
+      }
+      let event = await Event.findById(req.params.id);
+      if (event) {
+        console.log(req.user._id);
+        console.log(event.user);
+        if (req.user._id == event.user) {
+          event.eventName = req.body.eventName;
+          event.eventDate = req.body.eventDate;
+          event.startTime = req.body.startTime;
+          event.endTime = req.body.endTime;
+          event.discription = req.body.discription;
+          event.shortDiscription = req.body.shortDiscription;
+          event.schedule = req.body.schedule;
+          if (req.file) {
+            if (event.eimage) {
+              let avatarPath = event.eimage.substr(21);
+              if (
+                fs.existsSync(path.join(__dirname, '../../../', avatarPath))
+              ) {
+                fs.unlinkSync(path.join(__dirname, '../../../', avatarPath));
+              }
+            }
+
+            console.log(req.file);
+            //this is saving the path of the uploaded file into the avatar field of the user
+            event.eimage =
+              imageCorrection + Event.EImagePath + '/' + req.file.filename;
+          }
+          event.save();
+          return res
+            .status(200)
+            .json({ message: 'Event Successfully Updated' });
+        }
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      return res.status(404).json({ message: 'Event not found' });
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
