@@ -136,3 +136,23 @@ module.exports.all = async function (req, res) {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+module.exports.destroy = async function (req, res) {
+  try {
+    let poll = await Poll.findById(req.params.id);
+    if (poll) {
+      if (poll.user.equals(req.user._id)) {
+        poll.remove();
+        await User.findByIdAndUpdate(req.user._id, {
+          $pull: { poll: req.params.id },
+        });
+        return res.status(200).json({ message: 'Poll Successfully Deleted' });
+      }
+      return res.status(401).json({ message: 'Unauthorised' });
+    }
+    return res.status(400).json({ message: 'No Such Poll Exists' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

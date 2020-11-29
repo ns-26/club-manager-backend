@@ -19,4 +19,11 @@ router.post('/vote', pollController.vote);
 
 router.get('/display', pollController.all);
 
+router.post(
+  '/delete/:id',
+  passport.authenticate('jwt', { failWithError: true, session: false }),
+  middleware.handleError,
+  pollController.destroy
+);
+
 module.exports = router;
