@@ -17,6 +17,6 @@ router.post(
 
 router.post('/vote', pollController.vote);
 
-// router.post('/display', pollController.all);
+router.get('/display', pollController.all);
 
 module.exports = router;

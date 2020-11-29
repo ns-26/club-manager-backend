@@ -40,6 +40,10 @@ const pollSchema = new mongoose.Schema(
     vote4: {
       type: Number,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

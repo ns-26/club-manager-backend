@@ -31,6 +31,7 @@ module.exports.createPoll = async function (req, res) {
         vote2,
         vote3,
         vote4,
+        user: userid,
       };
       let poll = await Poll.create(input);
       if (poll) {
@@ -120,5 +121,18 @@ module.exports.vote = async function (req, res) {
     return res.status(500).json({
       message: 'Internal Server Error',
     });
+  }
+};
+
+module.exports.all = async function (req, res) {
+  try {
+    let polls = await Poll.find({});
+    return res.status(200).json({
+      polls,
+      message: 'List Of Polls',
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
