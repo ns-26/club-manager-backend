@@ -47,6 +47,12 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    comment: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
   },
   {
     timestamps: true,
