@@ -20,6 +20,7 @@ module.exports.newEvent = async function (req, res) {
           let startTime = req.body.start_time;
           let endTime = req.body.end_time;
           let eventName = req.body.event_name;
+          let venue = req.body.venue;
           let eventDate = req.body.date;
           let discription = req.body.discription;
           let shortDiscription = req.body.short_discription;
@@ -31,6 +32,7 @@ module.exports.newEvent = async function (req, res) {
             user,
             startTime,
             endTime,
+            venue,
             eventName,
             eventDate,
             discription,
@@ -97,6 +99,7 @@ module.exports.update = async function (req, res) {
           event.eventDate = req.body.eventDate;
           event.startTime = req.body.startTime;
           event.endTime = req.body.endTime;
+          event.venue = req.body.venue;
           event.discription = req.body.discription;
           event.shortDiscription = req.body.shortDiscription;
           event.schedule = req.body.schedule;
