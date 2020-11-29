@@ -15,7 +15,10 @@ module.exports.createPoll = async function (req, res) {
       let option2 = req.body.option_2;
       let option3 = req.body.option_3;
       let option4 = req.body.option_4;
-
+      let vote1 = 0;
+      let vote2 = 0;
+      let vote3 = 0;
+      let vote4 = 0;
       let input = {
         pollName,
         startTime,
@@ -24,6 +27,10 @@ module.exports.createPoll = async function (req, res) {
         option2,
         option3,
         option4,
+        vote1,
+        vote2,
+        vote3,
+        vote4,
       };
       let poll = await Poll.create(input);
       if (poll) {
@@ -40,6 +47,74 @@ module.exports.createPoll = async function (req, res) {
         .json({ message: 'Poll not created, Please try again later' });
     }
     return res.status(401).json({ message: 'Unauthorized' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Internal Server Error',
+    });
+  }
+};
+
+module.exports.vote = async function (req, res) {
+  try {
+    const { tokenId, parent, option } = req.body;
+    if (!tokenId) {
+      return res.status(401).json({ message: 'UnAuthorised' });
+    }
+
+    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: tokenId,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const response = ticket.getPayload();
+    if (
+      response &&
+      response.iss !== 'accounts.google.com' &&
+      response.aud !== GOOGLE_CLIENT_ID
+    )
+      return res.status(400).json({ message: 'Bad Request' });
+    console.log(response);
+    const user = {
+      email: response.email,
+      image: response.picture,
+      social_id: response.sub,
+      name: response.name,
+      gid: response.sub,
+    };
+
+    let poll = await Poll.findById(parent);
+    if (poll) {
+      if (option == 1) {
+        let count = poll.vote1;
+        count = count + 1;
+        poll.vote1 = count;
+      } else if (option == 2) {
+        let count = poll.vote2;
+        count = count + 1;
+        poll.vote2 = count;
+      } else if (option == 3) {
+        if (poll.option3) {
+          let count = poll.vote3;
+          count = count + 1;
+          poll.vote3 = count;
+        } else {
+          return res.status(400).json({ message: 'No Such Option in Poll' });
+        }
+      } else {
+        if (poll.option4) {
+          let count = poll.vote4;
+          count = count + 1;
+          poll.vote4 = count;
+        } else {
+          return res.status(400).json({ message: 'No Such Option in Poll' });
+        }
+      }
+      poll.save();
+      return res.status(200).json({ message: 'Successfully Voted' });
+    }
+    return res.status(400).json({ message: 'No Such Poll Found' });
   } catch (err) {
     console.log(err);
     return res.status(500).json({
