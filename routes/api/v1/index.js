@@ -10,4 +10,6 @@ router.use('/home', require('./home'));
 
 router.use('/comment', require('./comment'));
 
+router.use('/poll', require('./poll'));
+
 module.exports = router;
