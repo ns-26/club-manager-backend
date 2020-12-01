@@ -12,19 +12,22 @@ module.exports.create = async function (req, res) {
     }
 
     const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: GOOGLE_CLIENT_ID,
-    });
-    // console.log(ticket);
-    const response = ticket.getPayload();
-    if (
-      response &&
-      response.iss !== 'accounts.google.com' &&
-      response.aud !== GOOGLE_CLIENT_ID
-    )
-      return res.status(400).json({ message: 'Bad Request' });
-    console.log(response);
+    var response = null;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: GOOGLE_CLIENT_ID,
+      });
+
+      response = ticket.getPayload();
+      if (
+        response.iss !== 'accounts.google.com' &&
+        response.aud !== GOOGLE_CLIENT_ID
+      )
+        return res.status(400).json({ message: 'UnAuthorised' });
+    } catch (err) {
+      return res.status(401).json({ message: 'UnAuthorised' });
+    }
     const user = {
       email: response.email,
       image: response.picture,
@@ -88,7 +91,7 @@ module.exports.fetch = async function (req, res) {
         await Promise.all(promises);
         console.log('done');
         return res.status(200).send({
-          data: data,
+          comment: data,
           message: 'List of Comments',
         });
       }
@@ -112,22 +115,22 @@ module.exports.upvote = async function (req, res) {
     if (!tokenId) return res.status(401).json({ message: 'UnAuthorised' });
 
     const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: GOOGLE_CLIENT_ID,
-    });
+    var response = null;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: GOOGLE_CLIENT_ID,
+      });
 
-    const response = ticket.getPayload();
-
-    if (
-      response &&
-      response.iss !== 'accounts.google.com' &&
-      response.aud !== GOOGLE_CLIENT_ID
-    )
-      return res.status(400).json({ error: 'Bad Request' });
-
-    console.log(response);
-
+      response = ticket.getPayload();
+      if (
+        response.iss !== 'accounts.google.com' &&
+        response.aud !== GOOGLE_CLIENT_ID
+      )
+        return res.status(400).json({ error: 'UnAuthorised' });
+    } catch (err) {
+      return res.status(401).json({ message: 'UnAuthorised' });
+    }
     const user = {
       email: response.email,
       image: response.picture,
@@ -162,22 +165,22 @@ module.exports.downvote = async function (req, res) {
     if (!tokenId) return res.status(401).json({ message: 'UnAuthorised' });
 
     const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: GOOGLE_CLIENT_ID,
-    });
+    var response = null;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: GOOGLE_CLIENT_ID,
+      });
 
-    const response = ticket.getPayload();
-
-    if (
-      response &&
-      response.iss !== 'accounts.google.com' &&
-      response.aud !== GOOGLE_CLIENT_ID
-    )
-      return res.status(400).json({ error: 'Bad Request' });
-
-    console.log(response);
-
+      response = ticket.getPayload();
+      if (
+        response.iss !== 'accounts.google.com' &&
+        response.aud !== GOOGLE_CLIENT_ID
+      )
+        return res.status(400).json({ message: 'UnAuthorised' });
+    } catch (err) {
+      return res.status(401).json({ message: 'UnAuthorised' });
+    }
     const user = {
       email: response.email,
       image: response.picture,

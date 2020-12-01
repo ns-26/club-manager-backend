@@ -64,19 +64,21 @@ module.exports.vote = async function (req, res) {
     }
 
     const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: GOOGLE_CLIENT_ID,
-    });
-
-    const response = ticket.getPayload();
-    if (
-      response &&
-      response.iss !== 'accounts.google.com' &&
-      response.aud !== GOOGLE_CLIENT_ID
-    )
-      return res.status(400).json({ message: 'Bad Request' });
-    console.log(response);
+    var response = null;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      response = ticket.getPayload();
+      if (
+        response.iss !== 'accounts.google.com' &&
+        response.aud !== GOOGLE_CLIENT_ID
+      )
+        return res.status(400).json({ message: 'Bad Request' });
+    } catch (err) {
+      return res.status(401).json({ message: 'UnAuthorised' });
+    }
     const user = {
       email: response.email,
       image: response.picture,
