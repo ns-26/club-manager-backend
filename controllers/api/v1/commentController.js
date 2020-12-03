@@ -82,14 +82,13 @@ module.exports.fetch = async function (req, res) {
       if (event) {
         const promises = [];
         event.comment.forEach((id) => {
-          console.log(id);
+          // console.log(id);
           let promise = Comment.findById(id).then((comment) => {
             data.push(comment);
           });
           promises.push(promise);
         });
         await Promise.all(promises);
-        console.log('done');
         return res.status(200).send({
           comment: data,
           message: 'List of Comments',
