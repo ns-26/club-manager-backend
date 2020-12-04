@@ -6,6 +6,10 @@ const pollSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    discription: {
+      type: String,
+      required: true,
+    },
     startTime: {
       type: String,
       required: true,
@@ -44,6 +48,10 @@ const pollSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    username: {
+      type: String,
+    },
+    votedUser: [],
   },
   {
     timestamps: true,

@@ -3,12 +3,15 @@ const Poll = require('../../../modals/poll');
 const User = require('../../../modals/User');
 
 const { OAuth2Client } = require('google-auth-library');
+const { GOOGLE_CLIENT_ID } = process.env;
 
 module.exports.createPoll = async function (req, res) {
   try {
     let userid = req.params.id;
+    console.log(req.body);
     if (userid == req.user._id) {
       let pollName = req.body.poll_name;
+      let discription = req.body.discription;
       let startTime = req.body.start_time;
       let endTime = req.body.end_time;
       let option1 = req.body.option_1;
@@ -21,6 +24,7 @@ module.exports.createPoll = async function (req, res) {
       let vote4 = 0;
       let input = {
         pollName,
+        discription,
         startTime,
         endTime,
         option1,
@@ -37,6 +41,8 @@ module.exports.createPoll = async function (req, res) {
       if (poll) {
         let user = await User.findById(req.user._id);
         if (user) {
+          poll.username = user.username;
+          poll.save();
           user.poll.push(poll);
           user.save();
           return res.status(200).json({ message: 'Poll Successfully Created' });
@@ -59,6 +65,7 @@ module.exports.createPoll = async function (req, res) {
 module.exports.vote = async function (req, res) {
   try {
     const { tokenId, parent, option } = req.body;
+
     if (!tokenId) {
       return res.status(401).json({ message: 'UnAuthorised' });
     }
@@ -88,34 +95,48 @@ module.exports.vote = async function (req, res) {
     };
 
     let poll = await Poll.findById(parent);
+    let userFound = false;
+
     if (poll) {
-      if (option == 1) {
-        let count = poll.vote1;
-        count = count + 1;
-        poll.vote1 = count;
-      } else if (option == 2) {
-        let count = poll.vote2;
-        count = count + 1;
-        poll.vote2 = count;
-      } else if (option == 3) {
-        if (poll.option3) {
-          let count = poll.vote3;
-          count = count + 1;
-          poll.vote3 = count;
-        } else {
-          return res.status(400).json({ message: 'No Such Option in Poll' });
+      await poll.votedUser.forEach((voteUser) => {
+        if (voteUser == user.gid) {
+          userFound = true;
         }
+      });
+      if (!userFound) {
+        if (option == 1) {
+          let count = poll.vote1;
+          count = count + 1;
+          poll.vote1 = count;
+        } else if (option == 2) {
+          let count = poll.vote2;
+          count = count + 1;
+          poll.vote2 = count;
+        } else if (option == 3) {
+          if (poll.option3) {
+            let count = poll.vote3;
+            count = count + 1;
+            poll.vote3 = count;
+          } else {
+            return res.status(400).json({ message: 'No Such Option in Poll' });
+          }
+        } else {
+          if (poll.option4) {
+            let count = poll.vote4;
+            count = count + 1;
+            poll.vote4 = count;
+          } else {
+            return res.status(400).json({ message: 'No Such Option in Poll' });
+          }
+        }
+        poll.votedUser.push(user.gid);
+        poll.save();
+        return res.status(200).json({ message: 'Successfully Voted' });
       } else {
-        if (poll.option4) {
-          let count = poll.vote4;
-          count = count + 1;
-          poll.vote4 = count;
-        } else {
-          return res.status(400).json({ message: 'No Such Option in Poll' });
-        }
+        return res
+          .status(401)
+          .json({ message: 'You Have Already Voted For The Poll' });
       }
-      poll.save();
-      return res.status(200).json({ message: 'Successfully Voted' });
     }
     return res.status(400).json({ message: 'No Such Poll Found' });
   } catch (err) {
